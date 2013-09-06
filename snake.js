@@ -22,28 +22,27 @@
   }
   var coordToPx = function(i) { return (i * CELL_SIZE) + "px" }
   var append = function(parent, child) { return parent.append(child) }
-  var $head = $('<div>').css({
-    "position": "absolute",
-    "background": "green",
-    "width": coordToPx(1),
-    "height": coordToPx(1)
-  })
-  var $apple = $('<div>').css({
-    "position": "absolute",
-    "background": "red",
-    "width": coordToPx(1),
-    "height": coordToPx(1)
-  })
-  var createTailPiece = function() {
-    return $('<div>').addClass('tail').css({
-      "position": "absolute",
-      "background": "green",
-      "width": coordToPx(1),
-      "height": coordToPx(1)
+  var createPiece = function(color) {
+    return $('<div>').css({
+      position: "absolute",
+      background: color,
+      width: coordToPx(1),
+      height: coordToPx(1)
     })
   }
+  var $head = createPiece('green')
+  var $apple = createPiece('red')
+  var createTailPiece = function() { return createPiece('green').addClass('tail') }
   var randomPosition = function() {
     return [Math.floor(Math.random() * GRID_WIDTH), Math.floor(Math.random() * GRID_HEIGHT)]
+  }
+  var setPosition = function(element) {
+    return function(pos) {
+      element.css({
+        left: coordToPx(pos[0]),
+        top: coordToPx(pos[1])
+      })
+    }
   }
   var equals = function(x) { return function(y) { return x === y }}
   var ticks = Bacon.interval(150).takeUntil(gameEnd)
@@ -71,8 +70,8 @@
     "border": "1px solid black"
   }).append($head, $apple)
   tickCounter.assign($counter, 'text')
-  headPosition.onValue(function(pos) { $head.css({ "left": coordToPx(pos[0]), "top": coordToPx(pos[1]) }) })
-  applePosition.onValue(function(pos) { $apple.css({ "left": coordToPx(pos[0]), "top": coordToPx(pos[1]) }) })
+  headPosition.onValue(setPosition($head))
+  applePosition.onValue(setPosition($apple))
   applePosition.push(randomPosition())
   var tailPieces = tailSize.map(function(size) {
     return _(size).chain().range().map(createTailPiece).value()
@@ -82,10 +81,7 @@
     _(data.tail).each(function(pos, index) {
       var piece = data.pieces[index]
       $('#grid').append(piece)
-      piece.css({
-        left: coordToPx(pos[0]),
-        top: coordToPx(pos[1])
-      })
+      setPosition(piece)(pos)
     })
   })
 })(jQuery, Bacon)
