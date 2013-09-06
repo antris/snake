@@ -69,7 +69,8 @@
     "height": coordToPx(GRID_HEIGHT),
     "border": "1px solid black"
   }).append($head, $apple)
-  tickCounter.assign($counter, 'text')
+  var applesEaten = appleEaten.scan(0, function(x) { return x + 1 })
+  applesEaten.assign($counter, 'text')
   headPosition.onValue(setPosition($head))
   applePosition.onValue(setPosition($apple))
   applePosition.push(randomPosition())
