@@ -17,9 +17,8 @@
   var insideGrid = function(pos) {
     return pos[0] >= 0 && pos[0] < GRID_WIDTH && pos[1] >= 0 && pos[1] < GRID_HEIGHT
   }
-  var incrementDirection = function(pos, direction) {
-    var newPos = [pos[0] + direction[0], pos[1] + direction[1]]
-    return newPos
+  var vectorAdd = function(a, b) {
+    return [a[0] + b[0], a[1] + b[1]]
   }
   var coordToPx = function(i) { return (i * CELL_SIZE) + "px" }
   var append = function(parent, child) { return parent.append(child) }
@@ -69,7 +68,7 @@
     }
   }
   var direction = directionIntentions.scan(DIRECTION_NONE, changeDirectionIfLegal)
-  var headPosition = direction.sampledBy(ticks).scan(STARTING_POSITION, incrementDirection)
+  var headPosition = direction.sampledBy(ticks).scan(STARTING_POSITION, vectorAdd)
   headPosition.filter(function(pos) { return !insideGrid(pos) }).onValue(function() {
     gameEnd.push(true)
   })
