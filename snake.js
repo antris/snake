@@ -3,6 +3,7 @@
   var GRID_HEIGHT = 11
   var CELL_SIZE = 10
   var STARTING_POSITION = [5, 5]
+  var STARTING_SIZE = 3
 
   var LEFT = [-1, 0]
   var UP = [0, -1]
@@ -74,7 +75,7 @@
   })
   var applePosition = new Bacon.Bus()
   var appleEaten = headPosition.combine(applePosition, vectorEquals).filter(equals(true))
-  var tailSize = appleEaten.scan(3, function(x) { return x + 1 })
+  var tailSize = appleEaten.scan(STARTING_SIZE, function(x) { return x + 1 })
   appleEaten.onValue(function() { applePosition.push(randomPosition()) })
   var tail = headPosition.scan([], function(memo, pos) { return memo.concat([pos]) }).combine(tailSize, function(headPosition, tailSize) {
     return _(headPosition).last(tailSize)
