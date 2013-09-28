@@ -68,7 +68,7 @@
   var headPosition = direction.sampledBy(ticks).scan([5, 5], incrementDirection)
   var applePosition = new Bacon.Bus()
   var appleEaten = headPosition.combine(applePosition, vectorEquals).filter(equals(true))
-  var tailSize = appleEaten.scan(1, function(x) { return x + 1 })
+  var tailSize = appleEaten.scan(3, function(x) { return x + 1 })
   appleEaten.onValue(function() { applePosition.push(randomPosition()) })
   var tail = headPosition.scan([], function(memo, pos) { return memo.concat([pos]) }).combine(tailSize, function(headPosition, tailSize) {
     return _(headPosition).last(tailSize)
