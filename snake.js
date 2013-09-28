@@ -2,12 +2,13 @@
   var GRID_WIDTH = 11
   var GRID_HEIGHT = 11
   var CELL_SIZE = 10
-  var keysAsDirections = {
-    37: [-1, 0],
-    38: [0, -1],
-    39: [1, 0],
-    40: [0, 1]
-  }
+
+  var DIRECTION_LEFT = [-1, 0]
+  var DIRECTION_UP = [0, -1]
+  var DIRECTION_RIGHT = [1, 0]
+  var DIRECTION_DOWN = [0, 1]
+  var DIRECTION_NONE = [0, 0]
+
   var add = function(a,b) { return a+b }
   var second = function(a,b) { return b }
   var positionEquals = function(a,b) { return a[0] === b[0] && a[1] === b[1] }
@@ -50,8 +51,13 @@
   var $counter = $('#counter')
   var keyPresses = $(document).asEventStream('keydown').map('.keyCode')
   var isArrowKey = function(x) { return x >= 37 && x <= 40 }
-  var directionChanges = keyPresses.filter(isArrowKey).decode(keysAsDirections)
-  var direction = directionChanges.scan([0, 0], second)
+  var directionChanges = keyPresses.filter(isArrowKey).decode({
+    37: DIRECTION_LEFT,
+    38: DIRECTION_UP,
+    39: DIRECTION_RIGHT,
+    40: DIRECTION_DOWN
+  })
+  var direction = directionChanges.scan(DIRECTION_NONE, second)
   var headPosition = direction.sampledBy(ticks).scan([5, 5], incrementDirection)
   var applePosition = new Bacon.Bus()
   var appleEaten = headPosition.combine(applePosition, positionEquals).filter(equals(true))
