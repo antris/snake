@@ -18,7 +18,6 @@
   }
   var incrementDirection = function(pos, direction) {
     var newPos = [pos[0] + direction[0], pos[1] + direction[1]]
-    if (!insideGrid(newPos)) gameEnd.push(true)
     return newPos
   }
   var coordToPx = function(i) { return (i * CELL_SIZE) + "px" }
@@ -67,6 +66,9 @@
   }
   var direction = directionIntentions.scan(DIRECTION_NONE, changeDirectionIfLegal)
   var headPosition = direction.sampledBy(ticks).scan(STARTING_POSITION, incrementDirection)
+  headPosition.filter(function(pos) { return !insideGrid(pos) }).onValue(function() {
+    gameEnd.push(true)
+  })
   var applePosition = new Bacon.Bus()
   var appleEaten = headPosition.combine(applePosition, vectorEquals).filter(equals(true))
   var tailSize = appleEaten.scan(3, function(x) { return x + 1 })
