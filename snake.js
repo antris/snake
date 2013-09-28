@@ -57,8 +57,11 @@
     40: DOWN
   })
   var changeDirectionIfLegal = function(old, intent) {
+    var going = function(vec) { return vectorEquals(old, vec) }
     var intends = function(vec) { return vectorEquals(intent, vec) }
-    if (vectorEquals(old, LEFT) || vectorEquals(old, RIGHT)) {
+    if (going(DIRECTION_NONE)) {
+      return intent
+    } else if (going(LEFT) || going(RIGHT)) {
       return intends(UP) || intends(DOWN) ? intent : old
     } else {
       return intends(LEFT) || intends(RIGHT) ? intent : old
