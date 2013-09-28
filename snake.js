@@ -3,15 +3,14 @@
   var GRID_HEIGHT = 11
   var CELL_SIZE = 10
 
-  var DIRECTION_LEFT = [-1, 0]
-  var DIRECTION_UP = [0, -1]
-  var DIRECTION_RIGHT = [1, 0]
-  var DIRECTION_DOWN = [0, 1]
+  var LEFT = [-1, 0]
+  var UP = [0, -1]
+  var RIGHT = [1, 0]
+  var DOWN = [0, 1]
   var DIRECTION_NONE = [0, 0]
 
   var add = function(a,b) { return a+b }
-  var second = function(a,b) { return b }
-  var positionEquals = function(a,b) { return a[0] === b[0] && a[1] === b[1] }
+  var vectorEquals = function(a,b) { return a[0] === b[0] && a[1] === b[1] }
   var gameEnd = new Bacon.Bus()
   var insideGrid = function(pos) {
     return pos[0] >= 0 && pos[0] < GRID_WIDTH && pos[1] >= 0 && pos[1] < GRID_HEIGHT
@@ -51,16 +50,24 @@
   var $counter = $('#counter')
   var keyPresses = $(document).asEventStream('keydown').map('.keyCode')
   var isArrowKey = function(x) { return x >= 37 && x <= 40 }
-  var directionChanges = keyPresses.filter(isArrowKey).decode({
-    37: DIRECTION_LEFT,
-    38: DIRECTION_UP,
-    39: DIRECTION_RIGHT,
-    40: DIRECTION_DOWN
+  var directionIntentions = keyPresses.filter(isArrowKey).decode({
+    37: LEFT,
+    38: UP,
+    39: RIGHT,
+    40: DOWN
   })
-  var direction = directionChanges.scan(DIRECTION_NONE, second)
+  var changeDirectionIfLegal = function(old, intent) {
+    var intends = function(vec) { return vectorEquals(intent, vec) }
+    if (vectorEquals(old, LEFT) || vectorEquals(old, RIGHT)) {
+      return intends(UP) || intends(DOWN) ? intent : old
+    } else {
+      return intends(LEFT) || intends(RIGHT) ? intent : old
+    }
+  }
+  var direction = directionIntentions.scan(DIRECTION_NONE, changeDirectionIfLegal)
   var headPosition = direction.sampledBy(ticks).scan([5, 5], incrementDirection)
   var applePosition = new Bacon.Bus()
-  var appleEaten = headPosition.combine(applePosition, positionEquals).filter(equals(true))
+  var appleEaten = headPosition.combine(applePosition, vectorEquals).filter(equals(true))
   var tailSize = appleEaten.scan(1, function(x) { return x + 1 })
   appleEaten.onValue(function() { applePosition.push(randomPosition()) })
   var tail = headPosition.scan([], function(memo, pos) { return memo.concat([pos]) }).combine(tailSize, function(headPosition, tailSize) {
