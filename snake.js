@@ -2,6 +2,7 @@
   var GRID_WIDTH = 11
   var GRID_HEIGHT = 11
   var CELL_SIZE = 10
+  var STARTING_POSITION = [5, 5]
 
   var LEFT = [-1, 0]
   var UP = [0, -1]
@@ -65,7 +66,7 @@
     }
   }
   var direction = directionIntentions.scan(DIRECTION_NONE, changeDirectionIfLegal)
-  var headPosition = direction.sampledBy(ticks).scan([5, 5], incrementDirection)
+  var headPosition = direction.sampledBy(ticks).scan(STARTING_POSITION, incrementDirection)
   var applePosition = new Bacon.Bus()
   var appleEaten = headPosition.combine(applePosition, vectorEquals).filter(equals(true))
   var tailSize = appleEaten.scan(3, function(x) { return x + 1 })
