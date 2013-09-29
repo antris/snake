@@ -1,8 +1,8 @@
 (function($, Bacon) {
-  var GRID_WIDTH = 21
-  var GRID_HEIGHT = 21
+  var GRID_WIDTH = 31
+  var GRID_HEIGHT = 31
   var CELL_SIZE = 10
-  var STARTING_POSITION = [10, 10]
+  var STARTING_POSITION = [15, 15]
   var STARTING_SIZE = 5
 
   var LEFT = [-1, 0]
