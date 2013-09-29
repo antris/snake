@@ -21,7 +21,6 @@
     return [a[0] + b[0], a[1] + b[1]]
   }
   var coordToPx = function(i) { return (i * CELL_SIZE) + "px" }
-  var append = function(parent, child) { return parent.append(child) }
   var createPiece = function(color) {
     return $('<div>').css({
       position: "absolute",
