@@ -1,9 +1,9 @@
 (function($, Bacon) {
-  var GRID_WIDTH = 11
-  var GRID_HEIGHT = 11
+  var GRID_WIDTH = 21
+  var GRID_HEIGHT = 21
   var CELL_SIZE = 10
-  var STARTING_POSITION = [5, 5]
-  var STARTING_SIZE = 3
+  var STARTING_POSITION = [10, 10]
+  var STARTING_SIZE = 5
 
   var LEFT = [-1, 0]
   var UP = [0, -1]
@@ -69,15 +69,24 @@
   }
   var direction = directionIntentions.scan(DIRECTION_NONE, changeDirectionIfLegal)
   var headPosition = direction.sampledBy(ticks).scan(STARTING_POSITION, vectorAdd)
-  headPosition.filter(function(pos) { return !insideGrid(pos) }).onValue(function() {
-    gameEnd.push(true)
-  })
+  var headOutsideGrid = headPosition.filter(function(pos) { return !insideGrid(pos) })
   var applePosition = new Bacon.Bus()
   var appleEaten = headPosition.combine(applePosition, vectorEquals).filter(equals(true))
   var tailSize = appleEaten.scan(STARTING_SIZE, function(x) { return x + 1 })
   appleEaten.onValue(function() { applePosition.push(randomPosition()) })
-  var tail = headPosition.scan([], function(memo, pos) { return memo.concat([pos]) }).combine(tailSize, function(headPosition, tailSize) {
-    return _(headPosition).last(tailSize)
+  var tail = headPosition.scan([], function(memo, pos) { return memo.concat([pos]) }).combine(tailSize, function(headHistory, tailSize) {
+    return _(headHistory).chain().last(tailSize).initial().value()
+  })
+  var headCollidesWithTail = function(headPos, direction, tail) {
+    var isMoving = !vectorEquals(direction, DIRECTION_NONE)
+    return isMoving && _(tail).any(function(tailPos) { return vectorEquals(tailPos, headPos) })
+  }
+  var tailCollision = Bacon.combineWith(headCollidesWithTail, headPosition, direction, tail).sampledBy(headPosition).filter(equals(true))
+  tailCollision.onValue(function() {
+    gameEnd.push(true)
+  })
+  headOutsideGrid.onValue(function() {
+    gameEnd.push(true)
   })
   gameEnd.onValue(function() {
     $('#grid').empty()
